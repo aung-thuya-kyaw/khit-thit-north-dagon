@@ -1,0 +1,188 @@
+body {
+    font-family: "Myanmar Text", sans-serif;
+    margin: 0;
+    padding: 20px;
+    background: #f4f4f4;
+}
+
+.title {
+    text-align: center;
+    font-size: 30px;
+    margin-bottom: 25px;
+    color: #3a2417;
+    font-weight: bold;
+}
+
+/* Filter Bar 
+.filter-bar {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 20px;
+} */
+
+/* Filter Bar */
+.filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+/* Search bar fixed width */
+#searchInput {
+    width: 300px;
+    max-width: 100%;
+}
+
+/* Other filters */
+.filter-bar select {
+    width: auto;
+    min-width: 120px;
+}
+
+
+.filter-bar input,
+.filter-bar select {
+    padding: 10px;
+    font-size: 15px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+/* Table Design */
+.styled-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    font-size: 16px;
+    border: 3px solid #3a2417;
+}
+
+.styled-table thead tr {
+    background: #3a2417;
+    color: white;
+    text-align: center;
+    font-size: 18px;
+}
+
+.styled-table th,
+.styled-table td {
+    padding: 12px;
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+.styled-table tbody tr:nth-child(even) {
+    background: #f7f2ef;
+}
+
+.styled-table tbody tr:hover {
+    background: #e8dccf;
+    transition: 0.2s;
+}
+
+
+.fav-btn {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.fav-btn:hover {
+    transform: scale(1.2);
+}
+
+.fav-title {
+    margin-top: 40px;
+    text-align: center;
+    color: #b30000;
+}
+
+.fav-btn {
+    background: none;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+}
+
+.fav-btn:hover {
+    transform: scale(1.2);
+}
+
+.fav-title {
+    margin-top: 40px;
+    text-align: center;
+    color: #c41e3a;
+    font-size: 24px;
+}
+
+/* top button */
+
+.top-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+#showAllBtn, #showFavBtn {
+    padding: 10px 18px;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    background: #3a2417;
+    color: white;
+    transition: 0.2s;
+}
+
+#showAllBtn:hover, #showFavBtn:hover {
+    background: #5c3a28;
+}
+
+/*unfav*/
+
+.unfav-btn {
+    background: #b30000;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    font-size: 14px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.unfav-btn:hover {
+    background: #e60000;
+}
+
+/*unfav 2*/
+#clearFavBtn {
+    background: #b30000;
+    color: white;
+}
+
+#clearFavBtn:hover {
+    background: #e60000;
+}
+
+/*col atk*/
+
+.columnatk {
+    display: flex;
+}
+
+/*count css*/
+
+.count-box {
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #3a2417;
+}
