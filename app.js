@@ -32,9 +32,12 @@ fetch(sheetURL)
     const ID_CANDIDATES = ["id", "ID", "Id"];
     const ADDRESS_CANDIDATES = ["adress", "လိပ်စာ", "လိပ္စာ", "Address"];
     const TYPE_CANDIDATES = ["Type Of Property", "property of type", "အိမ်/မြေကွက်", "အိမ်/မြေ", "Type"];
-    const FEET_CANDIDATES = ["size", "feet", "ပေအကျယ်", "ပေအကွာ", "ပေအ", "Feet"];
+    const FEET_CANDIDATES = ["size", "feet", "ပေအကျယ်", "ပေအကွာ", "ပေအကျယ်", "Feet"];
     const PRICE_CANDIDATES = ["price", "ဈေး", "စျေး", "Price"];
     const STATUS_CANDIDATES = ["status", "အနေအထား", "Status"];
+    const WARD_CANIDATES = ["Ward", "ward", "ရပ်ကွက်"];
+    const BENEFIT_CANIDATES = ["Benefit"];
+
 
     // find header indices from cols metadata first
     let idx = {};
@@ -44,6 +47,8 @@ fetch(sheetURL)
     idx.feet = findColIndexByLabels(cols, FEET_CANDIDATES);
     idx.price = findColIndexByLabels(cols, PRICE_CANDIDATES);
     idx.status = findColIndexByLabels(cols, STATUS_CANDIDATES);
+    idx.ward = findColIndexByLabels(cols, WARD_CANIDATES);
+    idx.benefit = findColIndexByLabels(cols, BENEFIT_CANIDATES);
 
     // If cols metadata had empty labels (sometimes), fallback to using first row values as header names
     if ((idx.id === -1 || idx.price === -1 || idx.address === -1) && rows.length > 0) {
@@ -67,6 +72,8 @@ fetch(sheetURL)
       idx.feet = idx.feet === -1 ? findByHeader(FEET_CANDIDATES) : idx.feet;
       idx.price = idx.price === -1 ? findByHeader(PRICE_CANDIDATES) : idx.price;
       idx.status = idx.status === -1 ? findByHeader(STATUS_CANDIDATES) : idx.status;
+      idx.ward = idx.ward === -1 ? findByHeader(WARD_CANIDATES) : idx.ward;
+      idx.ward = idx.ward === -1 ? findByHeader(BENEFIT_CANIDATES) : idx.benefit;
     }
 
     // If header detection still failed for price, attempt a best-effort guess
@@ -100,13 +107,15 @@ fetch(sheetURL)
         type: parseCell(idx.type),
         feet: parseCell(idx.feet),
         price: parseCell(idx.price),
-        status: parseCell(idx.status) // still available for filter only
+        status: parseCell(idx.status), // still available for filter only
+        ward: parseCell(idx.ward),   // ⭐ ADD THIS LINE
+        benefit: parseCell(idx.benefit)
       };
     });
 
     // Debug: log detected indices (useful while testing)
     console.log("Detected column indices:", idx);
-    renderTable(allData);
+    renderTable(allData); // <--- slice 
   })
   .catch(err => {
     console.error("Failed to load sheet:", err);
@@ -117,18 +126,44 @@ fetch(sheetURL)
    ------------------------- */
 
 function renderTable(data) {
-    const body = document.getElementById("tableBody");
-    const countBox = document.getElementById("listingCount");
+  const body = document.getElementById("tableBody");
+  const countBox = document.getElementById("listingCount");
 
-    // update listing count
-    countBox.textContent = "Total Listings: " + data.length;
+  // old update listing count
+  // countBox.textContent = "Total Listings: " + data.length;
+  countBox.textContent = "Total Listings: " + data.length;
 
-    body.innerHTML = "";
+  const parseP = (p) => Number(String(p).replace(/[^\d.]/g, "")) || 0;
 
-    const favs = getFavorites();
+  // Extract numeric prices
+  const prices = data.map(item => parseP(item.price)).filter(n => n > 0);
 
-    data.forEach(item => {
-        body.innerHTML += `
+  // Average price (mean)
+  let avg = 0;
+  if (prices.length > 0) {
+    avg = Math.round(prices.reduce((a, b) => a + b, 0) / prices.length);
+  }
+  document.getElementById("avgPrice").textContent = "Average Price: " + avg + " သိန်း";
+
+  // Median price
+  let median = 0;
+  if (prices.length > 0) {
+    const sorted = prices.sort((a, b) => a - b);
+    const mid = Math.floor(sorted.length / 2);
+
+    median = sorted.length % 2 !== 0
+      ? sorted[mid]
+      : Math.round((sorted[mid - 1] + sorted[mid]) / 2);
+  }
+  document.getElementById("medianPrice").textContent = "Median Price: " + median + " သိန်း";
+
+
+  body.innerHTML = "";
+
+  const favs = getFavorites();
+
+  data.forEach(item => {
+    body.innerHTML += `
         <tr>
             <td>${item.no}</td>
             <td>${item.id}</td>
@@ -136,6 +171,7 @@ function renderTable(data) {
             <td>${item.address}</td>
             <td>${item.feet}</td>
             <td>${item.price}</td>
+            <td>${item.ward}</td>
             <td>
                 <button class="fav-btn" onclick="toggleFav('${item.id}')">
                     ${favs.includes(item.id) ? "❤️" : "🤍"}
@@ -143,16 +179,20 @@ function renderTable(data) {
             </td>
         </tr>
         `;
-    });
+  });
+
 }
-
-
 
 /* SEARCH + FILTERS (same listeners as before) */
 document.getElementById("searchInput").addEventListener("keyup", filterTable);
 document.getElementById("statusFilter").addEventListener("change", filterTable);
 document.getElementById("typeFilter").addEventListener("change", filterTable);
 document.getElementById("priceFilter").addEventListener("change", filterTable);
+document.getElementById("wardFilter").addEventListener("change", filterTable);
+document.getElementById("benefitFilter").addEventListener("change", filterTable);
+document.getElementById("feetFilter").addEventListener("change", filterTable);
+
+
 
 function parsePriceNumber(priceStr) {
   if (!priceStr && priceStr !== 0) return 0;
@@ -168,13 +208,16 @@ function filterTable() {
   const statusF = document.getElementById("statusFilter").value;
   const typeF = document.getElementById("typeFilter").value;
   const priceF = document.getElementById("priceFilter").value;
+  const wardF = document.getElementById("wardFilter").value;
+  const benefitF = document.getElementById("benefitFilter").value;
+  const feetF = document.getElementById("feetFilter").value;
 
   let filtered = allData.filter(item => {
     let ok = true;
 
     // search everything (id + type + address)
     if (search) {
-      const text = `${item.id} ${item.type} ${item.address}`.toLowerCase();
+      const text = `${item.id} ${item.type} ${item.address} ${item.feet}`.toLowerCase(); //i add feet check
       if (!text.includes(search)) ok = false;
     }
 
@@ -190,47 +233,68 @@ function filterTable() {
       const priceValue = parsePriceNumber(item.price);
       if (priceValue < min || priceValue > max) ok = false;
     }
+    // ward filter
+    if (wardF && item.ward !== wardF) ok = false;
+
+    // benefit filter 
+
+    if (benefitF && item.benefit !== benefitF) ok = false;
+
+    // Feet filter
+    if (feetF) {
+      const feetText = String(item.feet).replace(/\s+/g, "").toLowerCase();
+
+      if (feetF === "others") {
+        // Show items NOT matching known sizes
+        const known = ["20x60", "30x60", "40x60", "60x80", "80x60"];
+        if (known.some(size => feetText.includes(size))) ok = false;
+      } else {
+        // Exact size filter
+        if (!feetText.includes(feetF.toLowerCase())) ok = false;
+      }
+    }
+
+
     return ok;
   });
 
   renderTable(filtered);
 }
 
-
 // fav icon
 function getFavorites() {
-    return JSON.parse(localStorage.getItem("favorites") || "[]");
+  return JSON.parse(localStorage.getItem("favorites") || "[]");
 }
 
 function saveFavorites(list) {
-    localStorage.setItem("favorites", JSON.stringify(list));
+  localStorage.setItem("favorites", JSON.stringify(list));
 }
 
 function toggleFav(id) {
-    let favs = getFavorites();
-    
-    if (favs.includes(id)) {
-        favs = favs.filter(x => x !== id);
-    } else {
-        favs.push(id);
-    }
+  let favs = getFavorites();
 
-    saveFavorites(favs);
-    renderFavorites();
+  if (favs.includes(id)) {
+    favs = favs.filter(x => x !== id);
+  } else {
+    favs.push(id);
+  }
+
+  saveFavorites(favs);
+  renderFavorites();
 }
 
 // Render Fav icon
 
 function renderFavorites() {
-    const favBody = document.getElementById("favBody");
-    const favs = getFavorites();
+  const favBody = document.getElementById("favBody");
+  const favs = getFavorites();
 
-    favBody.innerHTML = "";
+  favBody.innerHTML = "";
 
-    const favList = allData.filter(item => favs.includes(item.id));
+  const favList = allData.filter(item => favs.includes(item.id));
 
-    favList.forEach((item, index) => {
-        favBody.innerHTML += `
+  favList.forEach((item, index) => {
+    favBody.innerHTML += `
         <tr>
             <td>${index + 1}</td>
             <td>${item.id}</td>
@@ -238,9 +302,10 @@ function renderFavorites() {
             <td>${item.address}</td>
             <td>${item.feet}</td>
             <td>${item.price}</td>
+            <td>${item.ward}</td>
         </tr>
         `;
-    });
+  });
 }
 
 renderFavorites();
@@ -248,35 +313,35 @@ renderFavorites();
 // Save fav permantely
 
 function getFavorites() {
-    return JSON.parse(localStorage.getItem("favorites") || "[]");
+  return JSON.parse(localStorage.getItem("favorites") || "[]");
 }
 
 function saveFavorites(list) {
-    localStorage.setItem("favorites", JSON.stringify(list));
+  localStorage.setItem("favorites", JSON.stringify(list));
 }
 
 // toggle fav for each property
 
 function toggleFav(id) {
-    let favs = getFavorites();
+  let favs = getFavorites();
 
-    if (favs.includes(id)) {
-        favs = favs.filter(x => x !== id); // remove
-    } else {
-        favs.push(id); // add
-    }
+  if (favs.includes(id)) {
+    favs = favs.filter(x => x !== id); // remove
+  } else {
+    favs.push(id); // add
+  }
 
-    saveFavorites(favs);
-    renderFavorites();
-    renderTable(allData); // update icons
+  saveFavorites(favs);
+  renderFavorites();
+  renderTable(allData); // update icons
 }
 
 // Add fav for each row
 
 // <td>
-   // <button class="fav-btn" onclick="toggleFav('${item.id}')">
-      //  ${getFavorites().includes(item.id) ? "❤️" : "🤍"}
-    //</button>
+// <button class="fav-btn" onclick="toggleFav('${item.id}')">
+//  ${getFavorites().includes(item.id) ? "❤️" : "🤍"}
+//</button>
 //</td>
 
 // 
@@ -311,21 +376,36 @@ function toggleFav(id) {
 // top button
 
 document.getElementById("showFavBtn").addEventListener("click", () => {
-    const favs = getFavorites();
-    const favList = allData.filter(item => favs.includes(item.id));
-    renderTable(favList);
+  const favs = getFavorites();
+  const favList = allData.filter(item => favs.includes(item.id));
+  renderTable(favList);
 });
 
 document.getElementById("showAllBtn").addEventListener("click", () => {
-    renderTable(allData);
-}); 
+  renderTable(allData); // ⭐ limit to first 30
+});
 
 //remove all fav
 
 document.getElementById("clearFavBtn").addEventListener("click", () => {
-    localStorage.removeItem("favorites");   // delete permanently
-    renderFavorites();                      // refresh favorites list
-    renderTable(allData);                   // refresh main table hearts
-    alert("All favorites have been removed ❌");
+  localStorage.removeItem("favorites");   // delete permanently
+  renderFavorites();                      // refresh favorites list
+  renderTable(allData);                   // refresh main table hearts
+  alert("All favorites have been removed ❌");
 });
+
+
+// nav 
+
+document.getElementById("navFavorites").addEventListener("click", () => {
+  const favs = getFavorites();
+  const favList = allData.filter(item => favs.includes(item.id));
+  renderTable(favList);
+});
+
+document.getElementById("menuToggle").addEventListener("click", () => {
+  document.getElementById("menuLinks").classList.toggle("show");
+});
+
+
 
