@@ -12,6 +12,15 @@
 </head>
 
 <body>
+    <!-- TOP MENU BAR -->
+    <!-- HAMBURGER BUTTON (mobile) -->
+    <div class="menu-toggle" id="menuToggle">☰</div>
+
+    <!-- NAV LINKS -->
+    <div class="menu-links" id="menuLinks">
+        <a href="https://www.facebook.com/atksenpai" target="_blank">Created by atk</a>
+    </div>
+
 
     <h1 class="title">ခေတ်သစ်အိမ်ခြံမြေ အရောင်း အချက်အလက်များ</h1>
 
@@ -26,8 +35,8 @@
 
         <select id="typeFilter">
             <option value="">အိမ်/မြေကွက် (အားလုံး)</option>
-            <option value="အိမ်">အိမ်</option>
             <option value="မြေကွက်">မြေကွက်</option>
+            <option value="အိမ်">အိမ်</option>
             <option value="အိမ် (Modern)">အိမ်(Modern)</option>
         </select>
 
@@ -38,6 +47,57 @@
             <option value="300-1000">300 - 1000 သိန်း</option>
             <option value="1000-99999">1000 သိန်း ထက်ပို</option>
         </select>
+
+        <select id="wardFilter">
+            <option value="">ရပ်ကွက် (အားလုံး)</option>
+            <option value="Ward 27">Ward 27</option>
+            <option value="Ward 28">Ward 28</option>
+            <option value="Ward 29">Ward 29</option>
+            <option value="Ward 30">Ward 30</option>
+            <option value="Ward 31">Ward 31</option>
+            <option value="Ward 32">Ward 32</option>
+            <option value="Ward 33">Ward 33</option>
+            <option value="Ward 34">Ward 34</option>
+            <option value="Ward 35">Ward 35</option>
+            <option value="Ward 36">Ward 36</option>
+            <option value="Ward 37">Ward 37</option>
+            <option value="Ward 38">Ward 38</option>
+            <option value="Ward 39">Ward 39</option>
+            <option value="Ward 40">Ward 40</option>
+            <option value="Ward 41">Ward 41</option>
+            <option value="Ward 42">Ward 42</option>
+            <option value="Ward 43">Ward 43</option>
+            <option value="Ward 44">Ward 44</option>
+            <option value="Ward 45">Ward 45</option>
+            <option value="Ward 46">Ward 46</option>
+            <option value="Ward 47">Ward 47</option>
+            <option value="Ward 48">Ward 48</option>
+            <option value="Ward 49">Ward 49</option>
+            <option value="Ward 50">Ward 50</option>
+            <option value="Ward U9">Ward U9</option>
+            <option value="Ward U10">Ward U10</option>
+            <option value="Ward 51">Ward 51</option>
+            <option value="Ward 19">Ward 19</option>
+            <option value="16B">16B</option>
+        </select>
+
+        <select id="benefitFilter">
+            <option value="">လမ်းအခြေအနေ (အားလုံး) </option>
+            <option value="ရပ်ကွက် အတွင်းလမ်း">ရပ်ကွက် အတွင်းလမ်း</option>
+            <option value="လမ်းမတန်း မေးတင်">လမ်းမတန်း မေးတင်</option>
+            <option value="လမ်းမတန်း ကျောကပ်">လမ်းမတန်း ကျောကပ်</option>
+        </select>
+
+        <select id="feetFilter">
+            <option value="">ပေအကျယ် (အားလုံး)</option>
+            <option value="20x60">20x60</option>
+            <option value="30x60">30x60</option>
+            <option value="40x60">40x60</option>
+            <option value="60x80">60x80</option>
+            <option value="80x60">80x60</option>
+        </select>
+
+
     </div>
 
     <div class="top-buttons">
@@ -47,11 +107,38 @@
     </div>
 
     <!--add count-->
-    <div id="listingCount" class="count-box">Total Listings: 0</div>
+    <!-- <div id="listingCount" class="count-box">Total Listings: 0</div> -->
 
-            <!-- Fav -->
-        <!-- <h2 class="fav-title">❤️ My Favorite Properties</h2>-->
-        <table class="styled-table">
+    <div class="stats-bar">
+        <span id="listingCount">Total Listings: 0</span>
+        <span id="avgPrice">Average Price: 0</span>
+        <span id="medianPrice">Median Price: 0</span>
+    </div>
+
+
+    <!-- Fav -->
+    <!-- <h2 class="fav-title">❤️ My Favorite Properties</h2>-->
+    <table class="styled-table">
+        <thead>
+            <tr>
+                <th>စဉ်</th>
+                <th>ID</th>
+                <th>အိမ်/မြေကွက်</th>
+                <th>လိပ်စာ</th>
+                <th>ပေအကျယ်</th>
+                <th>ဈေး</th>
+                <th>ရပ်ကွက်</th>
+            </tr>
+        </thead>
+        <tbody id="favBody"></tbody>
+    </table>
+    <div class="gapp"></div>
+    <h2> Khit Thit Listing</h2>
+
+    <!-- TABLE -->
+
+    <div id="pagination" class="pagination">
+        <table class="styled-table" id="two">
             <thead>
                 <tr>
                     <th>စဉ်</th>
@@ -60,27 +147,14 @@
                     <th>လိပ်စာ</th>
                     <th>ပေအကျယ်</th>
                     <th>ဈေး</th>
-                </tr>
-            </thead>
-            <tbody id="favBody"></tbody>
-        </table>
-
-        <!-- TABLE -->
-        <table class="styled-table">
-            <thead>
-                <tr>
-                    <th>စဉ်</th>
-                    <th>ID</th>
-                    <th>အိမ်/မြေကွက်</th>
-                    <th>လိပ်စာ</th>
-                    <th>ပေအကျယ်</th>
-                    <th>ဈေး</th>
+                    <th>ရပ်ကွက်</th>
                     <th>Fav</th>
 
                 </tr>
             </thead>
             <tbody id="tableBody"></tbody>
         </table>
+    </div>
     <script src="app.js"></script>
 </body>
 
